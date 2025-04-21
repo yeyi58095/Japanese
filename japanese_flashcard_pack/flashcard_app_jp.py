@@ -27,20 +27,31 @@ def run_quiz(cards):
         st.session_state.score = 0
         st.session_state.total = len(st.session_state.order)
         st.session_state.history = []
+        st.session_state.user_input = ""
+        st.session_state.last_result = ""
 
     if st.session_state.idx < st.session_state.total:
         question, answer = st.session_state.order[st.session_state.idx]
         st.write(f"解釋：**{answer}**")
-        user_input = st.text_input("請輸入對應假名", key=st.session_state.idx)
+        st.session_state.user_input = st.text_input(
+            "請輸入對應假名", value=st.session_state.user_input, key="input"
+        )
+
         if st.button("提交"):
-            if user_input.strip() == question:
-                st.success("正確！")
+            user_input = st.session_state.user_input.strip()
+            if user_input == question:
+                st.session_state.last_result = f"✅ 正確！"
                 st.session_state.score += 1
             else:
-                st.error(f"錯誤！正確答案是：{question}")
+                st.session_state.last_result = f"❌ 錯誤！正確答案是：{question}"
                 st.session_state.history.append((question, answer))
+
+            st.session_state.user_input = ""  # 清空輸入
             st.session_state.idx += 1
             st.rerun()
+
+        if st.session_state.last_result:
+            st.markdown(st.session_state.last_result)
     else:
         st.write("測驗結束！")
         st.write(f"正確率：{st.session_state.score} / {st.session_state.total}")
@@ -49,7 +60,8 @@ def run_quiz(cards):
             for q, a in st.session_state.history:
                 st.write(f"- {q}: {a}")
         if st.button("重新開始"):
-            del st.session_state.idx
+            for key in list(st.session_state.keys()):
+                del st.session_state[key]
             st.rerun()
 
 def main():
