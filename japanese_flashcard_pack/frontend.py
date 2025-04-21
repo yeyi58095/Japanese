@@ -11,10 +11,8 @@ def main():
     all_cards = list(flashcards[unit].items())
     total_available = len(all_cards)
 
-    # 選擇題數
     num_questions = st.number_input("請選擇題數", min_value=1, max_value=total_available, value=min(10, total_available))
 
-    # 初始化狀態
     if st.button("開始測驗") or "selected" not in st.session_state or st.session_state.get("current_unit") != unit:
         st.session_state.selected = all_cards[:num_questions]
         st.session_state.idx = 0
@@ -24,7 +22,6 @@ def main():
         st.session_state.current_unit = unit
         st.session_state.last_result = ""
 
-    # 主測驗流程
     if "selected" in st.session_state and st.session_state.idx < st.session_state.total:
         q, a = st.session_state.selected[st.session_state.idx]
         st.write(f"解釋：**{a}**")
@@ -40,17 +37,14 @@ def main():
             st.session_state.idx += 1
             st.rerun()
 
-        # 顯示上一題結果
         if st.session_state.last_result:
             st.markdown(st.session_state.last_result)
 
-        # 顯示退出鍵
         if st.button("退出"):
             for key in list(st.session_state.keys()):
                 del st.session_state[key]
             st.rerun()
 
-    # 測驗結束
     elif "selected" in st.session_state and st.session_state.idx >= st.session_state.total:
         st.subheader("✅ 測驗結束")
         st.write(f"正確率：{st.session_state.score} / {st.session_state.total}")
