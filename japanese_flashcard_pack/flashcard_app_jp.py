@@ -1,10 +1,13 @@
 import streamlit as st
 import random
+import os
 
 def load_flashcards(file="flashcards.txt"):
     flashcards = {}
     current_unit = None
-    with open(file, "r", encoding="utf-8") as f:
+    # 確保使用相對於本檔案的路徑
+    filepath = os.path.join(os.path.dirname(__file__), file)
+    with open(filepath, "r", encoding="utf-8") as f:
         for line in f:
             line = line.strip()
             if line.startswith("[") and line.endswith("]"):
@@ -55,7 +58,6 @@ def main():
     all_cards = {}
     for unit in flashcards:
         all_cards.update(flashcards[unit])
-
     run_quiz(all_cards)
 
 if __name__ == "__main__":
