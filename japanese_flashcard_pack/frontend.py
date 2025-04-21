@@ -2,9 +2,15 @@ import streamlit as st
 from logic import load_flashcards, normalize_string, save_incorrect
 
 def main():
+    st.set_page_config(page_title="Flashcards 測驗", layout="centered")
     st.title("📘 日文單字 Flashcards 測驗")
 
-    flashcards = load_flashcards()
+    try:
+        flashcards = load_flashcards()
+    except FileNotFoundError as e:
+        st.error(str(e))
+        return
+
     unit_names = list(flashcards.keys())
     unit = st.selectbox("選擇單元", unit_names)
 

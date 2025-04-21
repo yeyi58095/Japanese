@@ -9,6 +9,8 @@ def load_flashcards(filename="flashcards.txt"):
     flashcards = {}
     current_unit = None
     path = os.path.join(os.path.dirname(__file__), filename)
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"找不到題庫檔案：{path}")
     with open(path, "r", encoding="utf-8") as f:
         for line in f:
             line = line.strip()
@@ -23,15 +25,14 @@ def load_flashcards(filename="flashcards.txt"):
 def get_priority_list(wrong_file="wrong_answers.txt"):
     priority_words = set()
     path = os.path.join(os.path.dirname(__file__), wrong_file)
-    try:
-        with open(path, "r", encoding="utf-8") as f:
-            for line in f:
-                if line.startswith("解釋: "):
-                    parts = line.strip().split(", ")
-                    correct_answer = parts[2].split(": ")[1]
-                    priority_words.add(correct_answer)
-    except FileNotFoundError:
-        pass
+    if not os.path.exists(path):
+        return priority_words
+    with open(path, "r", encoding="utf-8") as f:
+        for line in f:
+            if line.startswith("解釋: "):
+                parts = line.strip().split(", ")
+                correct_answer = parts[2].split(": ")[1]
+                priority_words.add(correct_answer)
     return priority_words
 
 def save_incorrect(incorrect_answers, path="wrong_answers.txt"):
