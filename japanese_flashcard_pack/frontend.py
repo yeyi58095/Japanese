@@ -13,19 +13,25 @@ def main():
         st.error(str(e))
         return
 
-    # 選擇單元
+    # 單元選擇
     unit_names = list(flashcards.keys())
     unit = st.selectbox("選擇單元", unit_names)
 
-    # 準備題目
+    # 題庫與總題數
     all_cards = list(flashcards[unit].items())
     total_available = len(all_cards)
-    random.shuffle(all_cards)  # 題目打亂順序
+    random.shuffle(all_cards)  # 題目打亂
 
-    # 題數選擇
-    num_questions = st.number_input("請選擇題數", min_value=1, max_value=total_available, value=min(10, total_available))
+    # 顯示總題數提示
+    st.markdown(f"💡 本單元共有 **{total_available}** 題")
 
-    # 初次或重新選單元
+    # 題數選擇（加上「全部」選項）
+    options = list(range(1, total_available + 1))
+    options.append("全部")
+    choice = st.selectbox("請選擇要測驗的題數", options, index=min(9, len(options)-2))
+    num_questions = total_available if choice == "全部" else int(choice)
+
+    # 初始化測驗狀態
     if st.button("開始測驗") or "selected" not in st.session_state or st.session_state.get("current_unit") != unit:
         st.session_state.selected = all_cards[:num_questions]
         st.session_state.idx = 0
@@ -35,7 +41,7 @@ def main():
         st.session_state.current_unit = unit
         st.session_state.last_result = ""
 
-    # 測驗中
+    # 進行中題目
     if "selected" in st.session_state and st.session_state.idx < st.session_state.total:
         q, a = st.session_state.selected[st.session_state.idx]
         st.write(f"解釋：**{a}**")
