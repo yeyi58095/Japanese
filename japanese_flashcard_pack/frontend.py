@@ -1,24 +1,31 @@
 import streamlit as st
+import random
 from logic import load_flashcards, normalize_string, save_incorrect
 
 def main():
     st.set_page_config(page_title="Flashcards 測驗", layout="centered")
     st.title("📘 日文單字 Flashcards 測驗")
 
+    # 載入題庫
     try:
         flashcards = load_flashcards()
     except FileNotFoundError as e:
         st.error(str(e))
         return
 
+    # 選擇單元
     unit_names = list(flashcards.keys())
     unit = st.selectbox("選擇單元", unit_names)
 
+    # 準備題目
     all_cards = list(flashcards[unit].items())
     total_available = len(all_cards)
+    random.shuffle(all_cards)  # 題目打亂順序
 
+    # 題數選擇
     num_questions = st.number_input("請選擇題數", min_value=1, max_value=total_available, value=min(10, total_available))
 
+    # 初次或重新選單元
     if st.button("開始測驗") or "selected" not in st.session_state or st.session_state.get("current_unit") != unit:
         st.session_state.selected = all_cards[:num_questions]
         st.session_state.idx = 0
@@ -28,6 +35,7 @@ def main():
         st.session_state.current_unit = unit
         st.session_state.last_result = ""
 
+    # 測驗中
     if "selected" in st.session_state and st.session_state.idx < st.session_state.total:
         q, a = st.session_state.selected[st.session_state.idx]
         st.write(f"解釋：**{a}**")
@@ -51,6 +59,7 @@ def main():
                 del st.session_state[key]
             st.rerun()
 
+    # 測驗結束
     elif "selected" in st.session_state and st.session_state.idx >= st.session_state.total:
         st.subheader("✅ 測驗結束")
         st.write(f"正確率：{st.session_state.score} / {st.session_state.total}")
